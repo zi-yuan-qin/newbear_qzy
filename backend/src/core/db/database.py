@@ -74,6 +74,43 @@ def init_db() -> None:
             """
         )
 
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS user_profiles (
+                user_id INTEGER PRIMARY KEY,
+                personality_data TEXT NOT NULL DEFAULT '{}',
+                total_sessions INTEGER NOT NULL DEFAULT 0,
+                total_playtime_seconds INTEGER NOT NULL DEFAULT 0,
+                preferred_decision_style TEXT,
+                preferred_conflict_style TEXT,
+                avg_input_length REAL,
+                relationship_scores TEXT NOT NULL DEFAULT '{}',
+                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+            """
+        )
+
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS session_records (
+                session_id TEXT PRIMARY KEY,
+                user_id INTEGER NOT NULL,
+                seed_id TEXT NOT NULL,
+                seed_summary TEXT NOT NULL DEFAULT '{}',
+                day_completed INTEGER NOT NULL DEFAULT 0,
+                final_clock TEXT,
+                report_id TEXT,
+                report_scores TEXT NOT NULL DEFAULT '{}',
+                started_at TEXT NOT NULL DEFAULT (datetime('now')),
+                ended_at TEXT,
+                status TEXT NOT NULL DEFAULT 'active',
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+            """
+        )
+
 
 def save_world_state(session_id: str, state: dict[str, Any]) -> None:
     raw = json.dumps(state, ensure_ascii=False)

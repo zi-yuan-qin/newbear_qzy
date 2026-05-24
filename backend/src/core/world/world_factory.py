@@ -7,14 +7,14 @@ from src.core.world.runtime_state import (
     CompanyRuntimeState,
     WorldRuntimeState,
 )
-from src.core.world.seed_loader import load_world_seed
+from src.core.world.seed_loader import SessionSeed, load_world_seed
 
 
-def create_initial_world_state() -> WorldRuntimeState:
-    seed = load_world_seed()
+def create_initial_world_state(seed: SessionSeed | None = None) -> WorldRuntimeState:
+    world_seed = load_world_seed()
 
     company = CompanyRuntimeState(
-        name=seed["company"]["name"],
+        name=world_seed["company"]["name"],
         cash=5000.0,
         day=1,
         step=0,
@@ -23,7 +23,7 @@ def create_initial_world_state() -> WorldRuntimeState:
 
     actors = {}
 
-    for character in seed["characters"]:
+    for character in world_seed["characters"]:
         work = character["character_profile"].get("work", {})
         actors[character["actor_id"]] = ActorRuntimeState(
             actor_id=character["actor_id"],
