@@ -1,0 +1,11 @@
+{
+  "id": "incident-competitor-move",
+  "time": "09:30",
+  "title": "竞品提前发布同类产品",
+  "content": "今早收到竞品分析报告：一家融资B轮的同赛道公司今天发布了几乎相同定位的产品，主打AI+人格测评，还宣布首月免费。他们的团队规模和资金都远超你们。",
+  "tags": ["competition", "market", "strategy", "external_pressure"],
+  "param_conditions": {
+    "min_runway_days": 7,
+    "weight_by_cash": "medium"
+  }
+}

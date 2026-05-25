@@ -1,0 +1,10 @@
+{
+  "id": "pantry-life-advice",
+  "time": "17:30",
+  "title": "给彼此的建议",
+  "content": "行政难得地笑了：\"其实我觉得你们每个人都挺不容易的。技术，你别总吃外卖；市场，你周末别回工作消息了；老板……你也该睡够七小时了。\"茶水间难得地安静了几秒。",
+  "tags": ["care", "personal", "bonding", "warmth"],
+  "param_conditions": {
+    "min_team_morale": 55
+  }
+}

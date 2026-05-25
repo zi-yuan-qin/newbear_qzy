@@ -1,0 +1,10 @@
+{
+  "id": "meeting-celebration",
+  "time": "16:00",
+  "title": "阶段性成果庆祝",
+  "content": "熊老板难得笑着走进来：\"各位，我们的内测数据出来了——用户留存率比行业平均高出15%。我知道大家这段时间很辛苦。今天早点下班，我来请大家吃饭。\"但他随即收起笑容，\"不过明天开始，我们要冲刺下一阶段了。\"",
+  "tags": ["celebration", "morale_boost", "milestone", "positive"],
+  "param_conditions": {
+    "min_team_morale": 60
+  }
+}

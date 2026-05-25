@@ -1,0 +1,10 @@
+{
+  "id": "pantry-startup-dream",
+  "time": "17:30",
+  "title": "当年为什么要创业",
+  "content": "熊老板靠在茶水间门口，手里端着咖啡：\"你们知道我为什么想创业吗？不是为了解决什么社会问题——是受不了上一家公司里那些明明没意义的流程，所有人都要配合演。我想试试看能不能做一个不靠流程靠信任运转的团队。\"",
+  "tags": ["storytelling", "personal", "founder", "vulnerability"],
+  "param_conditions": {
+    "min_team_morale": 50
+  }
+}

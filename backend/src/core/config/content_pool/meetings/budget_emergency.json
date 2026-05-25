@@ -1,0 +1,10 @@
+{
+  "id": "meeting-budget-emergency",
+  "time": "11:00",
+  "title": "紧急预算会议",
+  "content": "行政拿着报表进来：\"如果维持当前支出，我们撑不到月底。我建议立即暂停所有非核心支出——包括设计外包、云服务器扩容和市场推广。\"技术说停掉云服务器产品直接不能用，市场说停掉推广等于把窗口让给竞品。",
+  "tags": ["budget", "crisis", "resource_allocation", "high_tension"],
+  "param_conditions": {
+    "max_cash": 3500
+  }
+}

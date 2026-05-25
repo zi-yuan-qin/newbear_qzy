@@ -1,0 +1,8 @@
+{
+  "id": "meeting-morning-standup",
+  "time": "12:00",
+  "title": "今日站会：确认优先级",
+  "content": "熊老板召集大家开站会：\"今天最重要的事是什么？每个人说一件你今天必须交付的东西，以及你卡在哪。\"",
+  "tags": ["standup", "alignment", "daily", "planning"],
+  "param_conditions": {}
+}

@@ -1,0 +1,10 @@
+{
+  "id": "meeting-afternoon-review",
+  "time": "15:30",
+  "title": "下午复盘：进度落后怎么办",
+  "content": "熊老板面色严肃地走进来：\"各位，我看了今天的进度，和计划比落后了至少两天。我们需要讨论一下——是砍需求，还是加时间？\"",
+  "tags": ["review", "delay", "tradeoff", "decision"],
+  "param_conditions": {
+    "max_runway_days": 8
+  }
+}

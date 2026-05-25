@@ -1,0 +1,9 @@
+{
+  "id": "report-empathy-letter",
+  "title": "安静的力量",
+  "trait_summary": "今天你最突出的特质是{trait}：你愿意先听别人说完，再表达自己的想法。",
+  "letter_title": "今天，你选择倾听而不是说服",
+  "letter_body": "在所有人都在急着表达自己的时候，你做了一个不太显眼但很重要的决定——先听。倾听不等于认同，但你给了团队一个被听见的机会。很多冲突的根源不是观点不同，而是没有人觉得被理解。你今天至少让一个人觉得被理解了。",
+  "tags": ["empathy", "listening", "collaboration", "soft_skills"],
+  "param_conditions": {}
+}

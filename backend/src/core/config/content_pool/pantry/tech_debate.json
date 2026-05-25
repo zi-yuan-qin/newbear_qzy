@@ -1,0 +1,10 @@
+{
+  "id": "pantry-tech-debate",
+  "time": "17:00",
+  "title": "技术方案争论",
+  "content": "技术端着水杯站在茶水间门口：\"我不反对用AI，但把所有核心逻辑交给一个黑箱API，出了bug连哪里错的都不知道。你们觉得这是工程还是玄学？\"",
+  "tags": ["tech", "debate", "engineering", "quality"],
+  "param_conditions": {
+    "min_strategy_consensus": 30
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "id": "meeting-roadmap-alignment",
+  "time": "14:00",
+  "title": "产品路线图对齐会",
+  "content": "技术说现在的架构撑不住太多新功能，市场说竞品已经在铺渠道了。熊老板决定开一次路线图对齐会：\"我们把所有功能列出来，每个人投三票，得票最高的三个，其他的——先砍。\"",
+  "tags": ["roadmap", "alignment", "conflict", "prioritization"],
+  "param_conditions": {
+    "max_strategy_consensus": 50
+  }
+}

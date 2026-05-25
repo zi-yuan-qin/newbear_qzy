@@ -1,0 +1,11 @@
+{
+  "id": "incident-market-pressure",
+  "time": "10:30",
+  "title": "大客户临时要求定制方案",
+  "content": "一个潜在的企业大客户突然联系你们，表示愿意签年框合作，但要求在下周前交付一套完全定制的测评方案。这个机会能解决现金流问题，但会打乱当前所有排期。",
+  "tags": ["client", "opportunity", "deadline", "resource_tradeoff"],
+  "param_conditions": {
+    "max_cash": 5000,
+    "weight_by_runway": "high"
+  }
+}

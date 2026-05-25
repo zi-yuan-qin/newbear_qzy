@@ -1,0 +1,11 @@
+{
+  "id": "incident-team-friction",
+  "time": "11:00",
+  "title": "核心技术成员提出离职",
+  "content": "早上收到消息，负责核心模块的技术成员表示最近压力太大，正在考虑离职。他说如果再这样加班下去，身体和家庭都会出问题。他的代码目前没有人能接手。",
+  "tags": ["team", "retention", "key_person", "internal_crisis"],
+  "param_conditions": {
+    "max_team_morale": 50,
+    "weight_by_consensus": "low"
+  }
+}

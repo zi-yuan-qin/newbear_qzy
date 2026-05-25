@@ -1,0 +1,10 @@
+{
+  "id": "incident-budget-overrun",
+  "time": "13:30",
+  "title": "这几个月算下来",
+  "content": "这几个月算下来，发现花在技术上的钱比预计多了30%，主要是一些服务费太贵了。行政提醒如果维持当前支出速度，现金流会比预期提前两周断裂。",
+  "tags": ["budget", "cost", "internal_crisis", "warning"],
+  "param_conditions": {
+    "weight_by_scarcity": "high"
+  }
+}

@@ -1,9 +1,38 @@
 from __future__ import annotations
 
+from src.core.config.content_pool import load_pool, select_items
 
-SCRIPTED_MEETINGS: list[dict[str, str]] = [{'time': '12:00',
-  'title': '平台要数据换流量，要不要答应。',
-  'content': '你们的产品主要依托某社交软件小程序生态。昨天，软件官方发来合作邀约：邀请你们接入“软件用户画像联合建模”计划，作为首批内测伙伴。条件是你们需要共享用户的测评结果数据，用于优化软件的职场内容推荐算法。作为回报，该软件会给予千万级的流量扶持。但你们的用户协议中明确承诺“测评数据不会与第三方共享”。熊老板说：“流量是我们最缺的，但用户信任也是命根子。你怎么看？”'},
- {'time': '15:30',
-  'title': '被大厂误读成AI算命，怎么澄清',
-  'content': '某头部AI大模型厂商在开发者大会上，将你们的产品作为“AI改造传统测评”的示范案例进行展示。但演示视频中，讲解人错误地将你们的霍兰德模型解释为“AI自动生成的人格标签”，并暗示“无需答题即可预测性格”。视频被大量传播后，用户质疑你们的产品“原来是AI算命”。你们从未授权此次展示。'}]
+
+def get_meetings(
+    pool_ids: list[str] | None = None,
+    count: int = 0,
+    seed_id: str = "",
+) -> list[dict[str, str]]:
+    """返回会议事件列表。
+
+    无参数时从内容池加载全部条目（向后兼容 SCRIPTED_MEETINGS）。
+    传入 seed_id 时进行确定性选取。
+    """
+    if pool_ids or count:
+        return select_items("meetings", pool_ids or [], count, seed_id)
+    return load_pool("meetings")
+
+
+# 向后兼容
+SCRIPTED_MEETINGS: list[dict[str, str]] = []
+
+
+def _populate_meetings() -> None:
+    global SCRIPTED_MEETINGS
+    items = load_pool("meetings")
+    SCRIPTED_MEETINGS = [
+        {
+            "time": item.get("time", ""),
+            "title": item.get("title", ""),
+            "content": item.get("content", ""),
+        }
+        for item in items
+    ]
+
+
+_populate_meetings()

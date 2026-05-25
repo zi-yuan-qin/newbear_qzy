@@ -1,0 +1,11 @@
+{
+  "id": "report-courage-letter",
+  "title": "勇气的代价",
+  "trait_summary": "今天你最突出的特质是{trait}：你敢于直面冲突，而不是绕开它。",
+  "letter_title": "今天，你选择面对而不是逃避",
+  "letter_body": "不是所有人都愿意在今天这样的环境里做困难的决定。你选择了直面问题——哪怕这意味着有人会不高兴。团队需要的不是一个永远和气的人，而是一个愿意在关键时刻说真话的人。",
+  "tags": ["conflict", "courage", "direct"],
+  "param_conditions": {
+    "min_decisiveness": 60
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "id": "report-daily-letter",
+  "title": "致产品人的一封信",
+  "trait_summary": "今天你最突出的特质是{trait}：你会在混乱中先稳住节奏，再把问题拆开给团队。",
+  "letter_title": "今天，你在混乱中找到了节奏",
+  "letter_body": "今天发生了很多事。有人焦虑，有人催促，有人犹豫。但你在关键的时候做出了自己的判断——不是完美的判断，但是一个推动事情前进的判断。这就是产品人最难也最重要的能力：在不完整的信息里做决定。",
+  "tags": ["default", "balanced", "daily"],
+  "param_conditions": {}
+}

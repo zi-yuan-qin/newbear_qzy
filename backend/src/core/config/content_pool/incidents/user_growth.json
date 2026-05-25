@@ -1,0 +1,11 @@
+{
+  "id": "incident-user-growth",
+  "time": "14:00",
+  "title": "内测用户暴涨，服务器扛不住了",
+  "content": "昨天一条短视频突然爆了，今天内测申请从200涨到了3000。但当前服务器最多只能支撑500人同时在线。技术团队说扩容至少需要两天和一笔预算。",
+  "tags": ["growth", "infrastructure", "opportunity", "resource_scarcity"],
+  "param_conditions": {
+    "min_cash": 3000,
+    "weight_by_morale": "high"
+  }
+}

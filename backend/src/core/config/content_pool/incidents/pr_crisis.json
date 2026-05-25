@@ -1,0 +1,11 @@
+{
+  "id": "incident-pr-crisis",
+  "time": "15:00",
+  "title": "被大厂误读成AI算命",
+  "content": "某头部AI大模型厂商在开发者大会上，将你们的产品作为示范案例进行展示。但演示中讲解人错误地将你们的霍兰德模型解释为'AI自动生成的人格标签'。视频被大量传播后，用户质疑你们的产品'原来是AI算命'。你们从未授权此次展示。",
+  "tags": ["pr", "brand", "external_pressure", "misinformation"],
+  "param_conditions": {
+    "min_team_morale": 40,
+    "weight_by_consensus": "medium"
+  }
+}

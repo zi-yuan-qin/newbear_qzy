@@ -1,8 +1,38 @@
 from __future__ import annotations
 
+from src.core.config.content_pool import load_pool, select_items
 
-SCRIPTED_INCIDENTS: list[dict[str, str]] = [{'time': '10:30',
-  'title': '距离产品发布会仅剩3天',
-  'content': '距离产品发布会仅剩3天，测试发现一个重要功能出了问题，修好需要至少5天。如果推迟发布，会错过最佳宣传时间；如果按时发布，可能引来大量用户不满。'},
- {'time': '13:30', 'title': '这几个月算下来', 'content': '这几个月算下来，发现花在技术上的钱比预计多了30%，主要是一些服务费太贵了。'},
-]
+
+def get_incidents(
+    pool_ids: list[str] | None = None,
+    count: int = 0,
+    seed_id: str = "",
+) -> list[dict[str, str]]:
+    """返回事件列表。
+
+    无参数时从内容池加载全部条目（向后兼容 SCRIPTED_INCIDENTS）。
+    传入 seed_id 时进行确定性选取。
+    """
+    if pool_ids or count:
+        return select_items("incidents", pool_ids or [], count, seed_id)
+    return load_pool("incidents")
+
+
+# 向后兼容：引擎文件直接 import SCRIPTED_INCIDENTS
+SCRIPTED_INCIDENTS: list[dict[str, str]] = []
+
+
+def _populate_incidents() -> None:
+    global SCRIPTED_INCIDENTS
+    items = load_pool("incidents")
+    SCRIPTED_INCIDENTS = [
+        {
+            "time": item.get("time", ""),
+            "title": item.get("title", ""),
+            "content": item.get("content", ""),
+        }
+        for item in items
+    ]
+
+
+_populate_incidents()

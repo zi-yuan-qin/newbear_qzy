@@ -1,0 +1,11 @@
+{
+  "id": "incident-funding-crisis",
+  "time": "10:00",
+  "title": "投资方突然要求对赌",
+  "content": "上周还在谈的A轮投资方突然发来消息：他们愿意继续投，但要求签下对赌协议——6个月内日活必须达到10万，否则股权稀释翻倍。不签，这笔钱就没了；签了，团队将承受巨大压力。",
+  "tags": ["funding", "negotiation", "high_stakes", "external_pressure"],
+  "param_conditions": {
+    "max_cash": 4000,
+    "weight_by_runway": "high"
+  }
+}

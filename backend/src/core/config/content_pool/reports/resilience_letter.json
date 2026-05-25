@@ -1,0 +1,9 @@
+{
+  "id": "report-resilience-letter",
+  "title": "跌倒了再站起来",
+  "trait_summary": "今天你最突出的特质是{trait}：在压力最大的时候，你没有崩溃，也没有放弃。",
+  "letter_title": "今天，你扛住了",
+  "letter_body": "今天不轻松。有人催你，有人质疑你，事情也不按计划走。但你没有退缩，也没有让情绪接管判断。韧性不是不害怕，而是害怕的时候依然选择做对的事。你今天做到了。",
+  "tags": ["resilience", "emotional_stability", "perseverance", "pressure"],
+  "param_conditions": {}
+}

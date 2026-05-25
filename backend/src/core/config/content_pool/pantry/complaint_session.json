@@ -1,0 +1,10 @@
+{
+  "id": "pantry-complaint-session",
+  "time": "17:45",
+  "title": "吐槽大会",
+  "content": "行政在茶水间泡了杯茶，叹了口气：\"说真的，我最近每天做梦都在对账。技术说服务器要扩容，市场说要投广告，老板说钱不够。你们觉得我是管家还是许愿池的王八？\"",
+  "tags": ["complaint", "stress_relief", "humor", "bonding"],
+  "param_conditions": {
+    "max_team_morale": 60
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "id": "report-vision-letter",
+  "title": "看到别人没看到的",
+  "trait_summary": "今天你最突出的特质是{trait}：你在所有人都关注眼前问题时，看到了下一步的可能性。",
+  "letter_title": "今天，你看到了更远的地方",
+  "letter_body": "当所有人都在讨论'今天怎么办'的时候，你在想'明天会怎样'。这不是一种轻松的视角——它让你承受了额外的压力和孤独感，因为很少有人能立刻跟上你的思路。但一个团队里确实需要这样的人：他看到的不是今天的坑，而是前方的路。",
+  "tags": ["visionary", "strategic", "forward_thinking", "leadership"],
+  "param_conditions": {
+    "min_openness": 65
+  }
+}
