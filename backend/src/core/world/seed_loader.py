@@ -29,8 +29,42 @@ class SessionSeed:
 def load_world_seed(user_id: int | None = None) -> dict[str, Any]:
     """把公司表、岗位表、人物表装配成一个统一的世界初始对象。
 
-    user_id=None 时走固定配置（兼容旧版）；user_id 非空时由 BE-006 接入种子生成器。
+    user_id=None 时走固定配置（兼容旧版）；user_id 非空时接入种子生成器。
     """
+
+    if user_id is not None:
+        from src.core.config.company_profile import build_company_profile
+
+        from src.core.config.seed_generator import generate
+
+        seed = generate(user_id)
+        company = build_company_profile(seed.company_params)
+
+        characters: list[dict[str, Any]] = []
+        for actor_id in CHARACTER_ORDER:
+            character_profile = deepcopy(CHARACTER_PROFILES[actor_id])
+            job_key = str(character_profile.get("job_key", "general")).strip() or "general"
+            job_profile = deepcopy(JOB_PROFILES.get(job_key, JOB_PROFILES["general"]))
+            relationships = deepcopy(RELATIONSHIP_NOTES.get(actor_id, {}))
+
+            characters.append(
+                {
+                    "actor_id": actor_id,
+                    "display_name": character_profile.get("display_name", actor_id),
+                    "job_key": job_key,
+                    "character_profile": character_profile,
+                    "job_profile": job_profile,
+                    "relationships": relationships,
+                    "_modifier": seed.character_modifiers.get(actor_id, {}),
+                }
+            )
+
+        return {
+            "company": company,
+            "characters": characters,
+        }
+
+    # ── user_id=None：固定配置（兼容旧版） ──
 
     company = deepcopy(COMPANY_PROFILE)
 
@@ -59,8 +93,3 @@ def load_world_seed(user_id: int | None = None) -> dict[str, Any]:
         "company": company,
         "characters": characters,
     }
-
-
-def build_company_profile(params: dict[str, Any]) -> dict[str, Any]:
-    """根据 company_params 生成公司描述 dict。后续由 BE-005 实现参数化。"""
-    return dict(COMPANY_PROFILE)
