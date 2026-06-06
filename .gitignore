@@ -3,7 +3,9 @@ frontend/app/node_modules/
 frontend/app/dist/
 .npm-cache/
 .workbuddy/
+.codex_tmp/
 __pycache__/
+**/__pycache__/
 *.pyc
 *.pyo
 *.pyd
@@ -11,6 +13,9 @@ __pycache__/
 backend/data/*.db
 run_project_out.log
 run_project_err.log
+run_frontend_*.log
+*.log
+*.zip
 .env
 .env.*
 .DS_Store

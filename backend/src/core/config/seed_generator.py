@@ -21,7 +21,7 @@ _ENERGY_OFFSET = 10
 # ── 每局选中的内容池条目数量 ──
 _INCIDENT_COUNT = 2
 _MEETING_COUNT = 2
-_PANTRY_COUNT = 2
+_PANTRY_COUNT = 1
 _REPORT_COUNT = 1
 
 
@@ -159,8 +159,9 @@ def _select_pool_ids(
     if not filtered:
         filtered = all_items  # fallback to all items
 
-    selected = pool_select(category, [], count, seed_id)
-    # If select_items returned empty or not enough, fallback
+    filtered_ids = [str(item["id"]) for item in filtered if item.get("id")]
+    selected = pool_select(category, filtered_ids, count, seed_id)
+    # If select_items returned empty, fallback to the full pool.
     if not selected:
         selected = pool_select(category, [], count, seed_id)
 

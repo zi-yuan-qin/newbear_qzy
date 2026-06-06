@@ -18,11 +18,19 @@ from src.core.auth.auth_service import (
 )
 from src.core.db.database import (
     init_db,
-    report_exists,
     save_report,
     save_user_message,
     save_world_state,
 )
+from src.core.db.session_store import (
+    abandon_session,
+    complete_session,
+    create_session_record,
+    get_session_record,
+    list_user_sessions,
+)
+from src.core.db.user_profile import increment_session_count, init_user_profile, update_user_profile
+from src.core.config.seed_generator import generate
 from src.core.world.meeting_discussion_engine import finish_meeting, run_meeting_tick
 from src.core.world.meeting_engine import (
     add_user_meeting_message,
@@ -44,6 +52,7 @@ WORLDS: dict[str, WorldRuntimeState] = {}
 WORLD_LOCK = threading.Lock()
 ROOT_DIR = Path(__file__).resolve().parents[1]
 WEB_DIR = ROOT_DIR / "frontend" / "web"
+APP_DIST_DIR = ROOT_DIR / "frontend" / "app" / "dist"
 
 
 def write_json(
@@ -68,11 +77,24 @@ def write_json(
     handler.wfile.write(raw)
 
 
-def get_or_create_world(session_id: str) -> WorldRuntimeState:
-    world = WORLDS.get(session_id)
+def create_world_for_user(user: AuthUser) -> WorldRuntimeState:
+    init_user_profile(user.user_id)
+    seed = generate(user.user_id)
+    world = create_initial_world_state(seed)
+    world.session_record_id = create_session_record(
+        user.user_id,
+        seed.seed_id,
+        world.seed_summary,
+    )
+    increment_session_count(user.user_id)
+    return world
+
+
+def get_or_create_world(user: AuthUser) -> WorldRuntimeState:
+    world = WORLDS.get(user.session_id)
     if world is None:
-        world = create_initial_world_state()
-        WORLDS[session_id] = world
+        world = create_world_for_user(user)
+        WORLDS[user.session_id] = world
     return world
 
 
@@ -127,7 +149,7 @@ def save_active_report_if_needed(user: AuthUser, world: WorldRuntimeState, state
     if not active_report or not active_report.get("visible"):
         return
 
-    if report_exists(user.session_id):
+    if world.report_saved:
         return
 
     save_report(
@@ -136,6 +158,31 @@ def save_active_report_if_needed(user: AuthUser, world: WorldRuntimeState, state
         clock=str(active_report.get("clock", world.company.clock)),
         scores=active_report.get("scores", {}),
         report=active_report,
+    )
+    world.report_saved = True
+
+
+def complete_active_session_if_reported(user: AuthUser, world: WorldRuntimeState) -> None:
+    report = world.active_report
+    if report is None:
+        return
+
+    complete_session(
+        world.session_record_id or user.session_id,
+        report_id=report.report_id,
+        scores=report.scores,
+        day_completed=world.company.day,
+        final_clock=world.company.clock,
+    )
+
+    update_user_profile(
+        user.user_id,
+        {
+            "last_report_id": report.report_id,
+            "last_report_scores": report.scores,
+            "last_trait_summary": report.trait_summary,
+            "last_session_seed_id": world.seed_id,
+        },
     )
 
 
@@ -157,6 +204,12 @@ def guess_content_type(path: Path) -> str:
     if suffix == ".json":
         return "application/json; charset=utf-8"
 
+    if suffix == ".js":
+        return "application/javascript; charset=utf-8"
+
+    if suffix == ".css":
+        return "text/css; charset=utf-8"
+
     return "application/octet-stream"
 
 
@@ -173,7 +226,7 @@ class NewbearHandler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
 
         if parsed.path == "/":
-            self.serve_file(WEB_DIR / "index.html", "text/html; charset=utf-8")
+            self.serve_frontend_index()
             return
 
         if parsed.path == "/main.js":
@@ -185,8 +238,15 @@ class NewbearHandler(BaseHTTPRequestHandler):
             return
 
         if parsed.path.startswith("/assets/"):
-            asset_path = WEB_DIR / parsed.path.lstrip("/")
+            asset_path = APP_DIST_DIR / parsed.path.lstrip("/")
+            if not asset_path.exists():
+                asset_path = WEB_DIR / parsed.path.lstrip("/")
             self.serve_file(asset_path, guess_content_type(asset_path))
+            return
+
+        app_static_path = APP_DIST_DIR / parsed.path.lstrip("/")
+        if APP_DIST_DIR.exists() and app_static_path.exists() and app_static_path.is_file():
+            self.serve_file(app_static_path, guess_content_type(app_static_path))
             return
 
         if parsed.path == "/api/auth/me":
@@ -210,10 +270,36 @@ class NewbearHandler(BaseHTTPRequestHandler):
                 return
 
             with WORLD_LOCK:
-                world = get_or_create_world(user.session_id)
+                world = get_or_create_world(user)
                 state = save_state_for_session(user.session_id, world)
 
             write_json(self, {"state": state})
+            return
+
+        if parsed.path == "/api/sessions":
+            user = require_user(self)
+            if user is None:
+                return
+
+            write_json(self, {"sessions": list_user_sessions(user.user_id)})
+            return
+
+        if parsed.path.startswith("/api/sessions/"):
+            user = require_user(self)
+            if user is None:
+                return
+
+            session_id = parsed.path.removeprefix("/api/sessions/").strip("/")
+            record = get_session_record(session_id)
+            if record is None or record.get("user_id") != user.user_id:
+                write_json(self, {"error": "Session not found"}, status=404)
+                return
+
+            write_json(self, {"session": record})
+            return
+
+        if not parsed.path.startswith("/api/"):
+            self.serve_frontend_index()
             return
 
         write_json(self, {"error": "Not found"}, status=404)
@@ -233,7 +319,7 @@ class NewbearHandler(BaseHTTPRequestHandler):
                 return
 
             with WORLD_LOCK:
-                world = get_or_create_world(user.session_id)
+                world = get_or_create_world(user)
                 state = save_state_for_session(user.session_id, world)
 
             write_json(
@@ -255,7 +341,7 @@ class NewbearHandler(BaseHTTPRequestHandler):
                 return
 
             with WORLD_LOCK:
-                world = get_or_create_world(user.session_id)
+                world = get_or_create_world(user)
                 state = save_state_for_session(user.session_id, world)
 
             write_json(
@@ -284,7 +370,10 @@ class NewbearHandler(BaseHTTPRequestHandler):
                 return
 
             with WORLD_LOCK:
-                WORLDS[user.session_id] = create_initial_world_state()
+                old_world = WORLDS.get(user.session_id)
+                if old_world is not None:
+                    abandon_session(old_world.session_record_id or user.session_id)
+                WORLDS[user.session_id] = create_world_for_user(user)
                 state = save_state_for_session(user.session_id, WORLDS[user.session_id])
 
             write_json(self, {"ok": True, "state": state})
@@ -299,7 +388,7 @@ class NewbearHandler(BaseHTTPRequestHandler):
             affair = str(payload.get("affair", "") or "")
 
             with WORLD_LOCK:
-                world = get_or_create_world(user.session_id)
+                world = get_or_create_world(user)
                 if affair.strip():
                     save_user_message(
                         user_id=user.user_id,
@@ -323,7 +412,7 @@ class NewbearHandler(BaseHTTPRequestHandler):
                 return
 
             with WORLD_LOCK:
-                world = get_or_create_world(user.session_id)
+                world = get_or_create_world(user)
                 enter_active_meeting(world)
                 state = save_state_for_session(user.session_id, world)
 
@@ -336,7 +425,7 @@ class NewbearHandler(BaseHTTPRequestHandler):
                 return
 
             with WORLD_LOCK:
-                world = get_or_create_world(user.session_id)
+                world = get_or_create_world(user)
                 start_active_meeting(world)
                 state = save_state_for_session(user.session_id, world)
 
@@ -352,7 +441,7 @@ class NewbearHandler(BaseHTTPRequestHandler):
             message = str(payload.get("message", "") or "")
 
             with WORLD_LOCK:
-                world = get_or_create_world(user.session_id)
+                world = get_or_create_world(user)
                 save_user_message(
                     user_id=user.user_id,
                     session_id=user.session_id,
@@ -372,7 +461,7 @@ class NewbearHandler(BaseHTTPRequestHandler):
                 return
 
             with WORLD_LOCK:
-                world = get_or_create_world(user.session_id)
+                world = get_or_create_world(user)
                 run_meeting_tick(world)
                 state = save_state_for_session(user.session_id, world)
 
@@ -385,7 +474,7 @@ class NewbearHandler(BaseHTTPRequestHandler):
                 return
 
             with WORLD_LOCK:
-                world = get_or_create_world(user.session_id)
+                world = get_or_create_world(user)
                 result = finish_meeting(world)
                 state = save_state_for_session(user.session_id, world)
 
@@ -398,7 +487,7 @@ class NewbearHandler(BaseHTTPRequestHandler):
                 return
 
             with WORLD_LOCK:
-                world = get_or_create_world(user.session_id)
+                world = get_or_create_world(user)
                 close_active_meeting(world)
                 state = save_state_for_session(user.session_id, world)
 
@@ -414,7 +503,7 @@ class NewbearHandler(BaseHTTPRequestHandler):
             message = str(payload.get("message", "") or "")
 
             with WORLD_LOCK:
-                world = get_or_create_world(user.session_id)
+                world = get_or_create_world(user)
                 save_user_message(
                     user_id=user.user_id,
                     session_id=user.session_id,
@@ -435,7 +524,7 @@ class NewbearHandler(BaseHTTPRequestHandler):
                 return
 
             with WORLD_LOCK:
-                world = get_or_create_world(user.session_id)
+                world = get_or_create_world(user)
                 run_pantry_tick(world)
                 state = save_state_for_session(user.session_id, world)
 
@@ -448,7 +537,7 @@ class NewbearHandler(BaseHTTPRequestHandler):
                 return
 
             with WORLD_LOCK:
-                world = get_or_create_world(user.session_id)
+                world = get_or_create_world(user)
                 finish_pantry(world)
                 close_active_pantry(world)
                 state = save_state_for_session(user.session_id, world)
@@ -462,7 +551,8 @@ class NewbearHandler(BaseHTTPRequestHandler):
                 return
 
             with WORLD_LOCK:
-                world = get_or_create_world(user.session_id)
+                world = get_or_create_world(user)
+                complete_active_session_if_reported(user, world)
                 close_active_report(world)
                 state = save_state_for_session(user.session_id, world)
 
@@ -497,6 +587,14 @@ class NewbearHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(raw)))
         self.end_headers()
         self.wfile.write(raw)
+
+    def serve_frontend_index(self) -> None:
+        react_index = APP_DIST_DIR / "index.html"
+        if react_index.exists():
+            self.serve_file(react_index, "text/html; charset=utf-8")
+            return
+
+        self.serve_file(WEB_DIR / "index.html", "text/html; charset=utf-8")
 
 
 def main() -> None:

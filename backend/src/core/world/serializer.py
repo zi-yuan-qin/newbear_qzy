@@ -9,6 +9,15 @@ def serialize_world_state(world: WorldRuntimeState) -> dict:
     """把运行时世界状态转换成可 JSON 化的 dict。"""
 
     return {
+        "seed": {
+            "seed_id": world.seed_id,
+            "summary": world.seed_summary,
+            "incident_pool_ids": world.incident_pool_ids,
+            "meeting_topic_ids": world.meeting_topic_ids,
+            "pantry_topic_ids": world.pantry_topic_ids,
+            "report_template_ids": world.report_template_ids,
+            "session_record_id": world.session_record_id,
+        },
         "company": {
             "name": world.company.name,
             "cash": world.company.cash,

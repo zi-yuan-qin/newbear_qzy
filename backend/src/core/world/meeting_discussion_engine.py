@@ -145,9 +145,10 @@ def _generate_meeting_result(world: WorldRuntimeState) -> dict[str, str]:
                 [
                     "你是会议纪要整理器。",
                     "请根据会议主题、背景和全部发言，生成一个清晰、可执行的最终会议结果。",
+                    "summary 必须是一句话，50 个汉字左右，保留决定和关键理由，不要展开长篇分析。",
                     "不要奉承产品经理，也不要回避风险。",
                     "只输出 JSON，不要 Markdown，不要解释。",
-                    'JSON 格式：{"title":"会议结果标题","summary":"最终方案，包含决定、理由、风险边界和下一步行动"}',
+                    'JSON 格式：{"title":"会议结果标题","summary":"一句约50字的最终方案"}',
                 ]
             ),
         },
@@ -165,19 +166,33 @@ def _generate_meeting_result(world: WorldRuntimeState) -> dict[str, str]:
     ]
 
     try:
-        raw_reply = ark_chat(messages=messages, max_tokens=700)
+        raw_reply = ark_chat(messages=messages, max_tokens=180)
         parsed = _parse_json_object(raw_reply)
         title = str(parsed.get("title", "") or "会议结果").strip()
         summary = str(parsed.get("summary", "") or "").strip()
         if summary:
-            return {"title": title[:80], "summary": summary[:600]}
+            return {"title": title[:80], "summary": _compact_meeting_summary(summary)}
     except (ArkClientError, ValueError):
         pass
 
     return {
         "title": "会议结果",
-        "summary": f"围绕“{meeting.title}”，团队决定先按风险可控的方式推进：明确数据边界、责任归属和下一步行动，再决定是否继续扩大合作。",
+        "summary": _compact_meeting_summary(
+            f"围绕“{meeting.title}”，团队决定先按风险可控的方式推进，明确数据边界、责任归属和下一步行动。"
+        ),
     }
+
+
+def _compact_meeting_summary(text: str, max_length: int = 56) -> str:
+    normalized = " ".join(str(text or "").split())
+    if len(normalized) <= max_length + 14:
+        return normalized
+
+    for index, char in enumerate(normalized):
+        if char in "。！？;；" and int(max_length * 0.65) <= index <= max_length + 14:
+            return normalized[: index + 1]
+
+    return normalized[:max_length]
 
 
 def _build_meeting_tick_messages(

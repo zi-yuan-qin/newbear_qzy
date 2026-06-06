@@ -1,6 +1,20 @@
 import { create } from "zustand";
 import { getCurrentUser, login, logout, register } from "../api/auth";
-import { fetchWorldState, resetWorld, runStep } from "../api/game";
+import {
+  closeMeeting as closeMeetingApi,
+  closeReport as closeReportApi,
+  enterMeeting as enterMeetingApi,
+  fetchWorldState,
+  finishMeeting as finishMeetingApi,
+  leavePantry as leavePantryApi,
+  resetWorld,
+  runStep,
+  sendMeetingMessage as sendMeetingMessageApi,
+  sendPantryMessage as sendPantryMessageApi,
+  startMeeting as startMeetingApi,
+  tickMeeting as tickMeetingApi,
+  tickPantry as tickPantryApi,
+} from "../api/game";
 import type { AuthPayload, AuthUser, WorldState } from "../types/api";
 type GameStore = {
   user: AuthUser | null;
@@ -15,7 +29,48 @@ type GameStore = {
   logout: () => Promise<void>;
   runStep: (affair: string) => Promise<void>;
   resetWorld: () => Promise<void>;
+  enterMeeting: () => Promise<void>;
+  startMeeting: () => Promise<void>;
+  sendMeetingMessage: (message: string) => Promise<void>;
+  tickMeeting: () => Promise<void>;
+  finishMeeting: () => Promise<void>;
+  closeMeeting: () => Promise<void>;
+  sendPantryMessage: (message: string) => Promise<void>;
+  tickPantry: () => Promise<void>;
+  leavePantry: () => Promise<void>;
+  closeReport: () => Promise<void>;
 };
+type WorldAction = () => Promise<{ state: WorldState }>;
+
+async function runWorldAction(
+  action: WorldAction,
+  set: (partial: Partial<GameStore>) => void,
+  pendingStatus: string,
+  successStatus: string,
+  failureStatus: string,
+) {
+  set({
+    isBusy: true,
+    status: pendingStatus,
+  });
+
+  try {
+    const data = await action();
+
+    set({
+      world: data.state,
+      status: successStatus,
+    });
+  } catch (error) {
+    set({
+      status: error instanceof Error ? error.message : failureStatus,
+    });
+  } finally {
+    set({
+      isBusy: false,
+    });
+  }
+}
 
 export const useGameStore = create<GameStore>((set) => ({
   user: null,
@@ -175,5 +230,104 @@ resetWorld: async () => {
       isBusy: false,
     });
   }
+},
+enterMeeting: async () => {
+  await runWorldAction(
+    enterMeetingApi,
+    set,
+    "正在进入会议室...",
+    "已进入会议室",
+    "进入会议室失败",
+  );
+},
+
+startMeeting: async () => {
+  await runWorldAction(
+    startMeetingApi,
+    set,
+    "正在开始会议...",
+    "会议已开始",
+    "开始会议失败",
+  );
+},
+
+sendMeetingMessage: async (message) => {
+  await runWorldAction(
+    () => sendMeetingMessageApi(message),
+    set,
+    "正在发送会议发言...",
+    "会议发言已发送",
+    "发送会议发言失败",
+  );
+},
+
+tickMeeting: async () => {
+  await runWorldAction(
+    tickMeetingApi,
+    set,
+    "正在推进会议...",
+    "会议已推进",
+    "推进会议失败",
+  );
+},
+
+finishMeeting: async () => {
+  await runWorldAction(
+    finishMeetingApi,
+    set,
+    "正在结束会议...",
+    "会议已结束",
+    "结束会议失败",
+  );
+},
+
+closeMeeting: async () => {
+  await runWorldAction(
+    closeMeetingApi,
+    set,
+    "正在关闭会议...",
+    "已回到公司",
+    "关闭会议失败",
+  );
+},
+
+sendPantryMessage: async (message) => {
+  await runWorldAction(
+    () => sendPantryMessageApi(message),
+    set,
+    "正在发送茶水间发言...",
+    "茶水间发言已发送",
+    "发送茶水间发言失败",
+  );
+},
+
+tickPantry: async () => {
+  await runWorldAction(
+    tickPantryApi,
+    set,
+    "正在推进茶水间对话...",
+    "茶水间对话已推进",
+    "推进茶水间失败",
+  );
+},
+
+leavePantry: async () => {
+  await runWorldAction(
+    leavePantryApi,
+    set,
+    "正在离开茶水间...",
+    "已离开茶水间",
+    "离开茶水间失败",
+  );
+},
+
+closeReport: async () => {
+  await runWorldAction(
+    closeReportApi,
+    set,
+    "正在关闭报告...",
+    "已关闭报告",
+    "关闭报告失败",
+  );
 },
 }));

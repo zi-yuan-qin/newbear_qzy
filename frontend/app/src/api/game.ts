@@ -22,3 +22,64 @@ export function resetWorld() {
     method: "POST",
   });
 }
+export function enterMeeting() {
+  return apiRequest<StepResponse>("/api/meeting/enter", {
+    method: "POST",
+  });
+}
+
+export function startMeeting() {
+  return apiRequest<StepResponse>("/api/meeting/start", {
+    method: "POST",
+  });
+}
+
+export function sendMeetingMessage(message: string) {
+  return apiRequest<StepResponse>("/api/meeting/say", {
+    method: "POST",
+    body: JSON.stringify({ message }),
+  });
+}
+
+export function tickMeeting() {
+  return apiRequest<StepResponse>("/api/meeting/tick", {
+    method: "POST",
+  });
+}
+
+export function finishMeeting() {
+  return apiRequest<StepResponse>("/api/meeting/finish", {
+    method: "POST",
+  });
+}
+
+export function closeMeeting() {
+  return apiRequest<StepResponse>("/api/meeting/close", {
+    method: "POST",
+  });
+}
+
+export function sendPantryMessage(message: string) {
+  return apiRequest<StepResponse>("/api/pantry/say", {
+    method: "POST",
+    body: JSON.stringify({ message }),
+  });
+}
+
+export function tickPantry() {
+  return apiRequest<StepResponse>("/api/pantry/tick", {
+    method: "POST",
+  });
+}
+
+export function leavePantry() {
+  return apiRequest<StepResponse>("/api/pantry/leave", {
+    method: "POST",
+  });
+}
+
+export function closeReport() {
+  return apiRequest<StepResponse>("/api/report/close", {
+    method: "POST",
+  });
+}

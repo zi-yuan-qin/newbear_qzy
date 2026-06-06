@@ -7,13 +7,18 @@ from typing import Any
 from src.core.db.database import get_connection
 
 
-def create_session_record(user_id: int, seed_id: str, seed_summary: dict[str, Any]) -> str:
-    session_id = uuid.uuid4().hex
+def create_session_record(
+    user_id: int,
+    seed_id: str,
+    seed_summary: dict[str, Any],
+    session_id: str | None = None,
+) -> str:
+    session_id = session_id or uuid.uuid4().hex
 
     with get_connection() as connection:
         connection.execute(
             """
-            INSERT INTO session_records (session_id, user_id, seed_id, seed_summary)
+            INSERT OR REPLACE INTO session_records (session_id, user_id, seed_id, seed_summary)
             VALUES (?, ?, ?, ?)
             """,
             (session_id, user_id, seed_id, json.dumps(seed_summary, ensure_ascii=False)),
@@ -52,7 +57,14 @@ def list_user_sessions(user_id: int, limit: int = 20) -> list[dict[str, Any]]:
     return [_row_to_session_dict(row) for row in rows]
 
 
-def complete_session(session_id: str, report_id: str, scores: dict[str, Any]) -> None:
+def complete_session(
+    session_id: str,
+    report_id: str,
+    scores: dict[str, Any],
+    *,
+    day_completed: int | None = None,
+    final_clock: str | None = None,
+) -> None:
     with get_connection() as connection:
         connection.execute(
             """
@@ -60,10 +72,18 @@ def complete_session(session_id: str, report_id: str, scores: dict[str, Any]) ->
             SET status = 'completed',
                 ended_at = datetime('now'),
                 report_id = ?,
-                report_scores = ?
+                report_scores = ?,
+                day_completed = COALESCE(?, day_completed),
+                final_clock = COALESCE(?, final_clock)
             WHERE session_id = ?
             """,
-            (report_id, json.dumps(scores, ensure_ascii=False), session_id),
+            (
+                report_id,
+                json.dumps(scores, ensure_ascii=False),
+                day_completed,
+                final_clock,
+                session_id,
+            ),
         )
 
 

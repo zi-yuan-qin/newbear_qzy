@@ -18,7 +18,6 @@ _CATEGORY_MAP: dict[str, Path] = {
 
 _CACHE: dict[str, list[dict[str, Any]]] = {}
 
-
 def load_pool(category: str) -> list[dict[str, Any]]:
     """Load all JSON entries for a given category from content_pool/<category>/*.json."""
     if category in _CACHE:

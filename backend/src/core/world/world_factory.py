@@ -11,7 +11,13 @@ from src.core.world.seed_loader import SessionSeed, load_world_seed
 
 
 def create_initial_world_state(seed: SessionSeed | None = None) -> WorldRuntimeState:
-    world_seed = load_world_seed()
+    if seed is not None:
+        from src.core.config.company_profile import build_company_profile
+
+        world_seed = load_world_seed()
+        world_seed["company"] = build_company_profile(seed.company_params)
+    else:
+        world_seed = load_world_seed()
 
     if seed is not None:
         cash = float(seed.company_params.get("cash", 5000.0))
@@ -45,7 +51,7 @@ def create_initial_world_state(seed: SessionSeed | None = None) -> WorldRuntimeS
             display_name=character["display_name"],
             location=normalize_location_name(work.get("office", "开放办公区")),
             stress=max(0, min(100, stress)),
-            energy=max(0, energy),
+            energy=max(0, min(100, energy)),
             mood="normal",
             current_task="",
             last_speech="",
@@ -55,4 +61,21 @@ def create_initial_world_state(seed: SessionSeed | None = None) -> WorldRuntimeS
         company=company,
         actors=actors,
         map_data=load_world_map(),
+        seed_id=seed.seed_id if seed is not None else "",
+        seed_summary=_build_seed_summary(seed) if seed is not None else {},
+        incident_pool_ids=list(seed.incident_pool_ids) if seed is not None else [],
+        meeting_topic_ids=list(seed.meeting_topic_ids) if seed is not None else [],
+        pantry_topic_ids=list(seed.pantry_topic_ids) if seed is not None else [],
+        report_template_ids=list(seed.report_template_ids) if seed is not None else [],
     )
+
+
+def _build_seed_summary(seed: SessionSeed) -> dict[str, object]:
+    return {
+        "seed_id": seed.seed_id,
+        "company_params": dict(seed.company_params),
+        "incident_pool_ids": list(seed.incident_pool_ids),
+        "meeting_topic_ids": list(seed.meeting_topic_ids),
+        "pantry_topic_ids": list(seed.pantry_topic_ids),
+        "report_template_ids": list(seed.report_template_ids),
+    }

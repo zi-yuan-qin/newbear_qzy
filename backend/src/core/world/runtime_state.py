@@ -143,6 +143,13 @@ class MemoryRecord:
 class WorldRuntimeState:
     company: CompanyRuntimeState
     actors: dict[str, ActorRuntimeState]
+    seed_id: str = ""
+    seed_summary: dict[str, Any] = field(default_factory=dict)
+    incident_pool_ids: list[str] = field(default_factory=list)
+    meeting_topic_ids: list[str] = field(default_factory=list)
+    pantry_topic_ids: list[str] = field(default_factory=list)
+    report_template_ids: list[str] = field(default_factory=list)
+    session_record_id: str = ""
     user_inputs: list[UserInputRecord] = field(default_factory=list)
     encounters: list[EncounterRecord] = field(default_factory=list)
     map_data: dict[str, Any] = field(default_factory=dict)
@@ -156,6 +163,5 @@ class WorldRuntimeState:
     triggered_pantry_ids: set[str] = field(default_factory=set)
     active_report: ActiveReportState | None = None
     report_generated: bool = False
-
-
+    report_saved: bool = False
 
